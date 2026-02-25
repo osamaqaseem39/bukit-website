@@ -10,6 +10,73 @@ import {
 
 type CategoryId = "snooker" | "padel" | "cricket" | "futsal" | "table-tennis";
 
+const darkNeonMapStyles = [
+  {
+    elementType: "geometry",
+    stylers: [{ color: "#111111" }],
+  },
+  {
+    elementType: "labels.icon",
+    stylers: [{ visibility: "off" }],
+  },
+  {
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#a3a3a3" }],
+  },
+  {
+    elementType: "labels.text.stroke",
+    stylers: [{ color: "#000000" }],
+  },
+  {
+    featureType: "administrative",
+    elementType: "geometry",
+    stylers: [{ visibility: "off" }],
+  },
+  {
+    featureType: "administrative.locality",
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#e5e5e5" }],
+  },
+  {
+    featureType: "poi",
+    stylers: [{ visibility: "off" }],
+  },
+  {
+    featureType: "transit",
+    stylers: [{ visibility: "off" }],
+  },
+  {
+    featureType: "road",
+    elementType: "geometry",
+    stylers: [{ color: "#000000" }],
+  },
+  {
+    featureType: "road",
+    elementType: "geometry.stroke",
+    stylers: [{ color: "#1f2933" }],
+  },
+  {
+    featureType: "road",
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#f5f5f5" }],
+  },
+  {
+    featureType: "road.highway",
+    elementType: "geometry",
+    stylers: [{ color: "#020617" }],
+  },
+  {
+    featureType: "water",
+    elementType: "geometry",
+    stylers: [{ color: "#111827" }],
+  },
+  {
+    featureType: "landscape",
+    elementType: "geometry",
+    stylers: [{ color: "#18181b" }],
+  },
+] as const;
+
 const categories: { id: CategoryId; label: string }[] = [
   { id: "snooker", label: "Snooker Clubs" },
   { id: "padel", label: "Padel Court" },
@@ -101,27 +168,30 @@ export default function HomePage() {
       <div className="absolute inset-0">
         {apiKey ? (
           <APIProvider apiKey={apiKey}>
-          <Map
-            defaultCenter={center}
-            defaultZoom={11}
-            disableDefaultUI
-            gestureHandling="greedy"
-            style={{ width: "100%", height: "100%" }}
-          >
-            {filteredClubs.map((club) => (
-              <AdvancedMarker
-                key={club.id}
-                position={club.position}
-                onClick={() => setSelectedClub(club)}
-              >
-                <Pin
-                  background="#ec4899"
-                  borderColor="#f9a8d4"
-                  glyphColor="#0f172a"
-                />
-              </AdvancedMarker>
-            ))}
-          </Map>
+            <Map
+              defaultCenter={center}
+              defaultZoom={11}
+              mapTypeId="roadmap"
+              styles={darkNeonMapStyles}
+              disableDefaultUI
+              clickableIcons={false}
+              gestureHandling="greedy"
+              style={{ width: "100%", height: "100%" }}
+            >
+              {filteredClubs.map((club) => (
+                <AdvancedMarker
+                  key={club.id}
+                  position={club.position}
+                  onClick={() => setSelectedClub(club)}
+                >
+                  <Pin
+                    background="#ec4899"
+                    borderColor="#f9a8d4"
+                    glyphColor="#0f172a"
+                  />
+                </AdvancedMarker>
+              ))}
+            </Map>
           </APIProvider>
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-slate-900">
@@ -134,22 +204,15 @@ export default function HomePage() {
       </div>
 
       {/* Top navigation overlay */}
-      <header className="pointer-events-none relative z-10 flex items-center justify-between px-4 py-4 sm:px-8">
-        <div className="pointer-events-auto flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-slate-950/90 text-sm font-semibold text-white shadow-lg shadow-pink-500/40 ring-2 ring-pink-500">
-            BK
+      <header className="pointer-events-none relative z-10 px-4 py-4 sm:px-8">
+        <div className="pointer-events-auto flex items-center justify-between rounded-full bg-black/80 px-4 py-3 text-xs shadow-2xl shadow-black/80 ring-1 ring-slate-900 sm:text-sm">
+          <div className="flex items-center gap-3">
+            <div className="logo-text text-lg font-semibold uppercase tracking-[0.22em] text-white sm:text-xl">
+              BUKIT
+            </div>
           </div>
-          <div className="flex flex-col">
-            <span className="text-sm font-semibold tracking-tight text-slate-50">
-              Bukit
-            </span>
-            <span className="text-[0.7rem] font-medium uppercase tracking-wide text-slate-400">
-              Find &amp; book nearby clubs
-            </span>
-          </div>
-        </div>
 
-        <nav className="pointer-events-auto hidden rounded-full bg-slate-950/80 p-1 text-xs font-semibold text-slate-200 shadow-lg shadow-black/60 ring-1 ring-slate-800 sm:flex">
+          <nav className="hidden items-center gap-1 rounded-full bg-neutral-900 px-4 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-slate-100 shadow-lg shadow-black/60 sm:flex">
           {categories.map((category) => (
             <button
               key={category.id}
@@ -160,28 +223,29 @@ export default function HomePage() {
               }}
               className={`rounded-full px-4 py-1.5 transition ${
                 activeCategory === category.id
-                  ? "bg-pink-500 text-white"
-                  : "text-slate-300 hover:bg-slate-800/80"
+                  ? "bg-pink-500 text-black shadow shadow-pink-500/60"
+                  : "text-slate-200 hover:bg-slate-800/80"
               }`}
             >
               {category.label}
             </button>
           ))}
-        </nav>
+          </nav>
 
-        <div className="pointer-events-auto flex items-center gap-2">
+          <div className="flex items-center gap-2">
           <button
             type="button"
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-pink-500 text-sm font-semibold text-white shadow-lg shadow-pink-500/40"
+              className="flex h-8 w-8 items-center justify-center rounded-full bg-neutral-900 text-[0.7rem] text-white shadow-lg shadow-black/70 ring-1 ring-slate-700 sm:h-9 sm:w-9"
           >
             🔔
           </button>
           <button
             type="button"
-            className="flex h-9 w-9 flex-col items-center justify-center rounded-full bg-slate-950/90 text-[0.6rem] font-semibold uppercase tracking-wide text-slate-200 shadow-lg shadow-black/60 ring-1 ring-slate-700"
+              className="flex h-8 w-8 flex-col items-center justify-center rounded-full bg-neutral-900 text-[0.55rem] font-semibold uppercase tracking-wide text-slate-200 shadow-lg shadow-black/70 ring-1 ring-slate-700 sm:h-9 sm:w-9"
           >
             ☰
           </button>
+          </div>
         </div>
       </header>
 

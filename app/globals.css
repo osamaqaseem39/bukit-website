@@ -36,6 +36,18 @@
       sans-serif;
   }
 
+  .logo-text {
+    font-family:
+      "MX Squad",
+      "Jost",
+      system-ui,
+      -apple-system,
+      BlinkMacSystemFont,
+      "SF Pro Text",
+      sans-serif;
+    letter-spacing: 0.06em;
+  }
+
   h1,
   h2,
   .display,
