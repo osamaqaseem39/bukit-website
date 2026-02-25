@@ -1,6 +1,6 @@
- "use client";
+"use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   APIProvider,
   AdvancedMarker,
@@ -138,6 +138,18 @@ const clubsData = [
     hours: "10:00 – 22:00",
     distance: "5.0 km",
   },
+  {
+    id: "6",
+    name: "Futsalrange Padel Arena Valencia",
+    category: "padel" as const,
+    position: { lat: 31.422581298659892, lng: 74.2654684834572 },
+    address:
+      "1st Floor 27 J2, near Euro Store, WAPDA Town Lahore, 54770, Pakistan",
+    rating: 4.8,
+    hours: "10:00 – 23:00",
+    distance: "2.33 km",
+    phone: "0321 750 7495",
+  },
 ];
 
 type Club = (typeof clubsData)[number] & {
@@ -148,6 +160,27 @@ export default function HomePage() {
   const [activeCategory, setActiveCategory] = useState<CategoryId>("padel");
   const [isListOpen, setIsListOpen] = useState(false);
   const [selectedClub, setSelectedClub] = useState<Club | undefined>();
+  const [mapCenter, setMapCenter] = useState(center);
+  const [userLocation, setUserLocation] = useState<typeof center | null>(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !("geolocation" in navigator)) return;
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const loc = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        };
+        setUserLocation(loc);
+        setMapCenter(loc);
+      },
+      () => {
+        // If permission denied or error, keep default center
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  }, []);
 
   const filteredClubs = useMemo<Club[]>(() => {
     const label =
@@ -169,8 +202,8 @@ export default function HomePage() {
         {apiKey ? (
           <APIProvider apiKey={apiKey}>
             <Map
-              defaultCenter={center}
-              defaultZoom={11}
+              center={mapCenter}
+              zoom={11}
               mapTypeId="roadmap"
               styles={darkNeonMapStyles}
               disableDefaultUI
@@ -178,6 +211,16 @@ export default function HomePage() {
               gestureHandling="greedy"
               style={{ width: "100%", height: "100%" }}
             >
+              {userLocation && (
+                <AdvancedMarker position={userLocation}>
+                  <Pin
+                    background="#f97316"
+                    borderColor="#fed7aa"
+                    glyphColor="#020617"
+                    scale={1.4}
+                  />
+                </AdvancedMarker>
+              )}
               {filteredClubs.map((club) => (
                 <AdvancedMarker
                   key={club.id}
@@ -252,29 +295,52 @@ export default function HomePage() {
       {/* Club info card overlay */}
       {selectedClub && (
         <div className="pointer-events-none relative z-10 flex justify-start px-4 sm:px-8">
-          <div className="pointer-events-auto mt-2 max-w-xs rounded-2xl bg-slate-950/90 p-3 text-xs text-slate-100 shadow-xl shadow-black/70 ring-1 ring-slate-800 sm:mt-4">
-            <p className="text-[0.65rem] font-semibold uppercase tracking-wide text-pink-300">
-              {selectedClub.categoryLabel}
-            </p>
-            <h2 className="mt-1 text-sm font-semibold text-white">
-              {selectedClub.name}
-            </h2>
-            <p className="mt-1 text-[0.7rem] text-slate-300">
-              {selectedClub.address}
-            </p>
-            <p className="mt-1 text-[0.7rem] text-slate-400">
-              Today · {selectedClub.hours}
-            </p>
-            <div className="mt-2 flex items-center justify-between">
-              <span className="text-[0.7rem] text-yellow-300">
-                ★ {selectedClub.rating.toFixed(1)}
-              </span>
-              <button
-                type="button"
-                className="rounded-full bg-pink-500 px-3 py-1 text-[0.7rem] font-semibold text-white hover:bg-pink-400"
-              >
-                Book this club
-              </button>
+          <div className="pointer-events-auto mt-4 max-w-md rounded-3xl bg-neutral-900/95 p-3 text-xs text-slate-100 shadow-[0_18px_45px_rgba(0,0,0,0.9)] ring-1 ring-neutral-700">
+            <div className="flex gap-3">
+              <div className="h-24 w-28 flex-shrink-0 overflow-hidden rounded-2xl bg-slate-800">
+                <div className="h-full w-full bg-gradient-to-br from-pink-500 via-fuchsia-500 to-sky-500 opacity-80" />
+              </div>
+
+              <div className="flex flex-1 flex-col">
+                <p className="text-[0.6rem] font-semibold uppercase tracking-[0.18em] text-slate-300">
+                  <span className="text-slate-400">
+                    {selectedClub.distance.toUpperCase()} /{" "}
+                  </span>
+                  <span className="text-white">Distance km</span>
+                </p>
+                <p className="mt-1 text-[0.8rem] font-semibold uppercase tracking-[0.18em] text-white">
+                  <span>{selectedClub.name.split(" VALENCIA")[0]}</span>{" "}
+                  <span className="text-pink-500">
+                    {selectedClub.name.includes("VALENCIA") ? "VALENCIA" : ""}
+                  </span>
+                </p>
+                <p className="mt-1 text-[0.65rem] text-slate-300">
+                  {selectedClub.address}
+                </p>
+                {selectedClub.phone && (
+                  <p className="mt-0.5 text-[0.65rem] text-slate-400">
+                    Call:{" "}
+                    <span className="font-semibold text-slate-100">
+                      {selectedClub.phone}
+                    </span>
+                  </p>
+                )}
+
+                <div className="mt-2 flex items-center justify-between">
+                  <div className="flex items-center gap-1">
+                    <span className="inline-flex items-center rounded-full bg-pink-500 px-2 py-0.5 text-[0.6rem] font-semibold text-black">
+                      {selectedClub.rating.toFixed(1)}
+                    </span>
+                    <span className="text-[0.6rem] text-slate-100">
+                      Excellent
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1 text-[0.6rem] text-yellow-300">
+                    <span>{"★★★★★"}</span>
+                    <span className="text-[0.6rem] text-slate-300">(32)</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
