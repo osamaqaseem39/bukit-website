@@ -167,7 +167,7 @@ export default function HomePage() {
   const [mapCenter, setMapCenter] = useState(center);
   const [userLocation, setUserLocation] = useState<typeof center | null>(null);
 
-  useEffect(() => {
+  const requestLocation = () => {
     if (typeof window === "undefined" || !("geolocation" in navigator)) return;
 
     navigator.geolocation.getCurrentPosition(
@@ -180,10 +180,14 @@ export default function HomePage() {
         setMapCenter(loc);
       },
       () => {
-        // If permission denied or error, keep default center
+        // If permission denied or error, keep previous center
       },
       { enableHighAccuracy: true, timeout: 10000 }
     );
+  };
+
+  useEffect(() => {
+    requestLocation();
   }, []);
 
   const filteredClubs = useMemo<Club[]>(() => {
@@ -248,6 +252,20 @@ export default function HomePage() {
             </p>
           </div>
         )}
+      </div>
+
+      {/* Locate me button */}
+      <div className="pointer-events-none absolute inset-0 z-10 flex items-end justify-end px-4 pb-28 sm:pb-32">
+        <button
+          type="button"
+          onClick={requestLocation}
+          className="pointer-events-auto inline-flex items-center gap-2 rounded-full bg-neutral-900/90 px-3 py-1.5 text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-slate-50 shadow-xl shadow-black/80 ring-1 ring-slate-700 backdrop-blur"
+        >
+          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-pink-500 text-xs text-black shadow shadow-pink-500/70">
+            ●
+          </span>
+          <span>My Location</span>
+        </button>
       </div>
 
       {/* Top navigation overlay */}
@@ -350,8 +368,8 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* Bottom show list button */}
-      <div className="pointer-events-none relative z-10 flex items-end justify-center pb-6 pt-10 sm:pb-8">
+      {/* Bottom show list button (center bottom) */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex items-end justify-center pb-6 sm:pb-8">
         <button
           type="button"
           onClick={() => setIsListOpen((open) => !open)}
@@ -361,37 +379,66 @@ export default function HomePage() {
         </button>
       </div>
 
-      {/* Bottom list drawer */}
-      {isListOpen && (
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex justify-center pb-4">
-          <div className="pointer-events-auto max-h-52 w-full max-w-xl overflow-y-auto rounded-2xl bg-slate-950/95 p-3 text-xs text-slate-100 shadow-2xl shadow-black/80 ring-1 ring-slate-800">
+      {/* Right side club list panel */}
+      <div
+        className={`pointer-events-none absolute inset-y-0 right-0 z-10 flex justify-end px-4 pt-20 pb-10 sm:px-8 transition-transform duration-300 ${
+          isListOpen ? "translate-x-0" : "translate-x-full"
+        }`}
+      >
+        <div className="pointer-events-auto flex h-full w-full max-w-sm flex-col rounded-l-3xl bg-slate-950/95 p-4 text-xs text-slate-100 shadow-[0_18px_55px_rgba(0,0,0,0.95)] ring-1 ring-slate-800">
+          <div className="mb-3 flex items-center justify-between">
+            <p className="text-[0.7rem] font-semibold uppercase tracking-[0.22em] text-slate-200">
+              Search for Branches
+            </p>
+            <button
+              type="button"
+              onClick={() => setIsListOpen(false)}
+              className="flex h-7 w-7 items-center justify-center rounded-full bg-neutral-900 text-[0.7rem] text-slate-100 ring-1 ring-slate-700"
+            >
+              ✕
+            </button>
+          </div>
+
+          <div className="mb-3">
+            <input
+              type="text"
+              placeholder="Search clubs..."
+              className="w-full rounded-full border border-slate-800 bg-neutral-900 px-3 py-1.5 text-[0.7rem] text-slate-100 placeholder:text-slate-500 outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500"
+            />
+          </div>
+
+          <div className="mt-1 flex-1 space-y-2 overflow-y-auto pr-1">
             {filteredClubs.map((club) => (
               <button
                 key={club.id}
                 type="button"
-                onClick={() => setSelectedClub(club)}
-                className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-left transition ${
+                onClick={() => {
+                  setSelectedClub(club);
+                  setMapCenter(club.position);
+                }}
+                className={`flex w-full flex-col items-start gap-1 rounded-2xl px-3 py-2 text-left transition ${
                   selectedClub?.id === club.id
-                    ? "bg-pink-500/15"
-                    : "hover:bg-slate-800/80"
+                    ? "bg-pink-500/10 ring-1 ring-pink-500/60"
+                    : "bg-neutral-900/60 hover:bg-slate-800/90"
                 }`}
               >
-                <div>
-                  <p className="text-[0.7rem] font-semibold text-slate-100">
-                    {club.name}
-                  </p>
-                  <p className="text-[0.65rem] text-slate-400">
-                    {club.categoryLabel} · {club.distance}
-                  </p>
+                <p className="text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-slate-100">
+                  {club.name}
+                </p>
+                <p className="text-[0.65rem] text-slate-400">
+                  {club.categoryLabel} · {club.address}
+                </p>
+                <div className="mt-1 flex w-full items-center justify-between text-[0.65rem]">
+                  <span className="text-slate-300">{club.distance}</span>
+                  <span className="text-yellow-300">
+                    ★ {club.rating.toFixed(1)}
+                  </span>
                 </div>
-                <span className="text-[0.7rem] text-yellow-300">
-                  ★ {club.rating.toFixed(1)}
-                </span>
               </button>
             ))}
           </div>
         </div>
-      )}
+      </div>
     </main>
   );
 }
