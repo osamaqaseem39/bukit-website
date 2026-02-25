@@ -16,16 +16,20 @@ const darkNeonMapStyles: google.maps.MapTypeStyle[] = [
     stylers: [{ color: "#111111" }],
   },
   {
+    elementType: "labels",
+    stylers: [{ visibility: "off" }],
+  },
+  {
     elementType: "labels.icon",
     stylers: [{ visibility: "off" }],
   },
   {
     elementType: "labels.text.fill",
-    stylers: [{ color: "#a3a3a3" }],
+    stylers: [{ visibility: "off" }],
   },
   {
     elementType: "labels.text.stroke",
-    stylers: [{ color: "#000000" }],
+    stylers: [{ visibility: "off" }],
   },
   {
     featureType: "administrative",
@@ -35,7 +39,7 @@ const darkNeonMapStyles: google.maps.MapTypeStyle[] = [
   {
     featureType: "administrative.locality",
     elementType: "labels.text.fill",
-    stylers: [{ color: "#e5e5e5" }],
+    stylers: [{ visibility: "off" }],
   },
   {
     featureType: "poi",
