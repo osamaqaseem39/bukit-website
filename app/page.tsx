@@ -77,6 +77,7 @@ type Club = (typeof clubsData)[number] & {
   categoryLabel: string;
 };
 export default function HomePage() {
+  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
   const [activeCategory, setActiveCategory] = useState<CategoryId>("padel");
   const [isListOpen, setIsListOpen] = useState(false);
   const [selectedClub, setSelectedClub] = useState<Club | undefined>();
@@ -98,7 +99,8 @@ export default function HomePage() {
     <main className="relative min-h-screen bg-slate-950 text-slate-100">
       {/* Map background */}
       <div className="absolute inset-0">
-        <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? ""}>
+        {apiKey ? (
+          <APIProvider apiKey={apiKey}>
           <Map
             defaultCenter={center}
             defaultZoom={11}
@@ -120,7 +122,15 @@ export default function HomePage() {
               </AdvancedMarker>
             ))}
           </Map>
-        </APIProvider>
+          </APIProvider>
+        ) : (
+          <div className="flex h-full w-full items-center justify-center bg-slate-900">
+            <p className="text-sm text-slate-300">
+              Set <code className="text-pink-300">NEXT_PUBLIC_GOOGLE_MAPS_API_KEY</code> in
+              <span className="font-semibold"> website/.env.local</span> to load the map.
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Top navigation overlay */}

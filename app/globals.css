@@ -1,12 +1,52 @@
 @import "tailwindcss";
 
 @layer base {
+  @font-face {
+    font-family: "MX Squad";
+    src:
+      url("/fonts/MXSquad.woff2") format("woff2"),
+      url("/fonts/MXSquad.woff") format("woff");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "Jost";
+    src:
+      url("/fonts/Jost-Variable.woff2") format("woff2"),
+      url("/fonts/Jost-Regular.woff2") format("woff2"),
+      url("/fonts/Jost-Regular.woff") format("woff");
+    font-weight: 100 700;
+    font-style: normal;
+    font-display: swap;
+  }
+
   :root {
     color-scheme: dark;
   }
 
   body {
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+    font-family:
+      "Jost",
+      system-ui,
+      -apple-system,
+      BlinkMacSystemFont,
+      "SF Pro Text",
+      sans-serif;
+  }
+
+  h1,
+  h2,
+  .display,
+  .hero-title {
+    font-family:
+      "MX Squad",
+      "Jost",
+      system-ui,
+      -apple-system,
+      BlinkMacSystemFont,
+      "SF Pro Text",
       sans-serif;
   }
 }
