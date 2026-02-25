@@ -10,7 +10,7 @@ import {
 
 type CategoryId = "snooker" | "padel" | "cricket" | "futsal" | "table-tennis";
 
-const darkNeonMapStyles = [
+const darkNeonMapStyles: google.maps.MapTypeStyle[] = [
   {
     elementType: "geometry",
     stylers: [{ color: "#111111" }],
@@ -75,7 +75,7 @@ const darkNeonMapStyles = [
     elementType: "geometry",
     stylers: [{ color: "#18181b" }],
   },
-] as const;
+];
 
 const categories: { id: CategoryId; label: string }[] = [
   { id: "snooker", label: "Snooker Clubs" },
